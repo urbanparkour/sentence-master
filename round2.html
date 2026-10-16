@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round 2: Survivor Battle</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Bubblegum Sans', cursive;
+    background: linear-gradient(135deg, #FF6B6B, #EE5A6F);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px 20px 0;
+    overflow: auto;
+}
+
+/* ===== TIMER (TOP TO BOTTOM) ===== */
+.timer-container {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 18px;
+    height: 100vh;
+    background: rgba(0,0,0,0.15);
+    z-index: 100;
+}
+
+.timer-bar {
+    width: 100%;
+    height: 0%;
+    background: #00FF00;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: countdown 600s linear forwards;
+}
+
+@keyframes countdown {
+    from { height: 0%; }
+    to { height: 100%; }
+}
+
+/* ===== MAIN CARD ===== */
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 1000px;
+    width: calc(100% - 40px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    text-align: center;
+    margin: 20px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.card::-webkit-scrollbar {
+    width: 10px;
+}
+
+.card::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: #FF6B6B;
+    border-radius: 10px;
+}
+
+.round-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px;
+    color: #FF6B6B;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.stage-subtitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.question-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: #4ECDC4;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.question-box {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 25px;
+    flex-shrink: 0;
+}
+
+.original-sentence {
+    font-size: 26px;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.change-instruction {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: #FFD700;
+    word-wrap: break-word;
+}
+
+/* ===== ANSWER SECTION ===== */
+.answer-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.answer-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.answer-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.answer-section::-webkit-scrollbar-thumb {
+    background: #FF6B6B;
+    border-radius: 10px;
+}
+
+.answer-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: #FF6B6B;
+    margin-bottom: 15px;
+}
+
+.answer-text {
+    font-size: 24px;
+    color: #2c3e50;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    border: 3px solid #FF6B6B;
+    word-wrap: break-word;
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding: 15px 0 5px 0;
+    background: white;
+    border-top: 2px solid #f0f0f0;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.control-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    color: white;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn-show {
+    background: linear-gradient(145deg, #4ECDC4, #44A08D);
+}
+
+.btn-next {
+    background: linear-gradient(145deg, #FFD700, #FFA500);
+}
+
+.btn-end {
+    background: linear-gradient(145deg, #FF6B6B, #EE5A6F);
+}
+
+.btn-home {
+    background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+}
+
+.hidden { display: none !important; }
+
+/* ===== MODAL POPUP ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 30px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    animation: modalPop 0.5s ease-out;
+}
+
+@keyframes modalPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.modal-content h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 48px;
+    color: #FF6B6B;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.modal-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    padding: 15px 50px;
+    background: linear-gradient(145deg, #FF6B6B, #EE5A6F);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        position: static;
+    }
+    
+    .control-btn {
+        width: 100%;
+        min-width: auto;
+        font-size: 20px;
+        padding: 15px 25px;
+    }
+    
+    .modal-content {
+        padding: 30px;
+    }
+    
+    .modal-content h2 {
+        font-size: 36px;
+    }
+    
+    .modal-icon {
+        font-size: 60px;
+    }
+}
+
+/* ===== WINNER SCREEN ===== */
+.winner-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 2000;
+    background: radial-gradient(circle at center, #1a1f5c 0%, #0b0d2b 70%, #05061a 100%);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+#fireworks { position: absolute; inset: 0; width: 100%; height: 100%; }
+.winner-content { position: relative; z-index: 2; animation: winnerPop 0.8s cubic-bezier(.2,1.6,.4,1); }
+@keyframes winnerPop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.winner-trophy { font-size: 140px; animation: trophyBounce 1.6s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(255,215,0,.7)); }
+@keyframes trophyBounce { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-25px) rotate(4deg); } }
+.winner-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 130px;
+    line-height: 1;
+    margin: 10px 0 15px;
+    background: linear-gradient(180deg, #FFF59D 0%, #FFD700 45%, #FF9800 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 6px #7A2E0E;
+    paint-order: stroke fill;
+    filter: drop-shadow(0 8px 0 #4A1A06) drop-shadow(0 0 25px rgba(255,200,0,.6));
+    letter-spacing: 3px;
+}
+.winner-ribbon {
+    display: inline-block;
+    font-family: 'Fredoka One', cursive;
+    font-size: 34px;
+    color: white;
+    background: linear-gradient(180deg, #F0423C, #C21E1E);
+    padding: 12px 50px;
+    border-radius: 14px;
+    border: 4px solid white;
+    box-shadow: 0 8px 0 #8E1414, 0 12px 25px rgba(0,0,0,.4);
+    text-shadow: 2px 2px 0 #8E1414;
+    margin-bottom: 40px;
+}
+.winner-img {
+    width: min(720px, 85vw);
+    max-height: 68vh;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 30px;
+    animation: winnerFloat 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 35px rgba(255, 200, 0, 0.45));
+}
+@keyframes winnerFloat { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-18px) rotate(1.5deg); } }
+.winner-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 768px) {
+    .winner-title { font-size: 72px; -webkit-text-stroke: 4px #7A2E0E; }
+    .winner-trophy { font-size: 90px; }
+    .winner-ribbon { font-size: 22px; padding: 10px 25px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TIMER -->
+<div class="timer-container">
+    <div class="timer-bar"></div>
+</div>
+
+<!-- GAME VIEW -->
+<div class="card" id="gameView">
+    <div class="round-title">⚔️ Survivor Battle</div>
+    <div class="stage-subtitle">Last one standing wins!</div>
+    
+    <div class="question-number" id="questionNumber">Loading questions...</div>
+
+    <div class="question-box">
+        <div class="original-sentence" id="originalSentence"></div>
+        <div class="change-instruction" id="instruction"></div>
+    </div>
+
+    <div class="answer-section" id="answerSection">
+        <div class="answer-label">✓ Correct Answer</div>
+        <div class="answer-text" id="answerText"></div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn btn-show" id="showAnswerBtn">Show Answer</button>
+        <button class="control-btn btn-next hidden" id="nextBtn">Next</button>
+        <button class="control-btn btn-end" id="endBtn">End Game</button>
+        <button class="control-btn btn-home" onclick="location.href='index.html'">Home</button>
+    </div>
+</div>
+
+<!-- TIME'S UP MODAL -->
+<div class="modal-overlay" id="timesUpModal">
+    <div class="modal-content">
+        <div class="modal-icon">⏰</div>
+        <h2>TIME'S UP!</h2>
+        <p>The round has ended</p>
+        <button class="modal-btn" id="modalOkBtn">OK</button>
+    </div>
+</div>
+
+
+<!-- WINNER SCREEN -->
+<div class="winner-overlay" id="winnerOverlay">
+    <canvas id="fireworks"></canvas>
+    <div class="winner-content">
+        <img src="Winner.png" alt="Sentence Master Winner!" class="winner-img">
+        <div class="winner-buttons">
+            <button class="control-btn btn-next" id="backToGameBtn">Back to Game</button>
+            <button class="control-btn btn-home" onclick="location.href='index.html'">Home</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== FIREWORKS =====
+const Fireworks = (function () {
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#FF9800', '#ffffff', '#7C4DFF', '#00E676', '#FF4081'];
+    let rockets = [], sparks = [], running = false, frame = 0;
+
+    function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+    addEventListener('resize', resize);
+
+    function launch() {
+        rockets.push({
+            x: canvas.width * (0.15 + Math.random() * 0.7), y: canvas.height,
+            vx: (Math.random() - 0.5) * 2, vy: -(canvas.height / 75 + Math.random() * 4),
+            targetY: canvas.height * (0.12 + Math.random() * 0.35),
+            color: colors[Math.floor(Math.random() * colors.length)]
+        });
+    }
+
+    function explode(r) {
+        const n = 70 + Math.floor(Math.random() * 40);
+        for (let i = 0; i < n; i++) {
+            const a = (Math.PI * 2 * i) / n, sp = 2 + Math.random() * 5;
+            sparks.push({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+                life: 60 + Math.random() * 40, age: 0,
+                color: Math.random() < 0.8 ? r.color : colors[Math.floor(Math.random() * colors.length)] });
+        }
+    }
+
+    function tick() {
+        if (!running) return;
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (frame++ % 22 === 0) launch();
+        if (Math.random() < 0.03) launch();
+
+        rockets = rockets.filter(r => {
+            r.x += r.vx; r.y += r.vy; r.vy += 0.05;
+            ctx.fillStyle = r.color;
+            ctx.beginPath(); ctx.arc(r.x, r.y, 3, 0, Math.PI * 2); ctx.fill();
+            if (r.y <= r.targetY || r.vy >= 0) { explode(r); return false; }
+            return true;
+        });
+
+        sparks = sparks.filter(p => {
+            p.age++; p.x += p.vx; p.y += p.vy;
+            p.vx *= 0.97; p.vy = p.vy * 0.97 + 0.06;
+            ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2); ctx.fill();
+            return p.age < p.life;
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(tick);
+    }
+
+    return {
+        start() { resize(); if (!running) { running = true; for (let i = 0; i < 4; i++) setTimeout(launch, i * 150); tick(); } },
+        stop()  { running = false; rockets = []; sparks = []; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    };
+})();
+</script>
+
+<script>
+// Splits one CSV line, respecting "quoted, fields"
+function splitCSV(line) {
+    const out = []; let cur = ''; let q = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { if (q && line[i+1] === '"') { cur += '"'; i++; } else q = !q; }
+        else if (ch === ',' && !q) { out.push(cur); cur = ''; }
+        else cur += ch;
+    }
+    out.push(cur);
+    return out;
+}
+
+let questions = [];
+let index = 0;
+let timerTimeout;
+
+$(document).ready(function() {
+    // Get the selected CSV file from localStorage
+    const selectedCsvFile = localStorage.getItem('sentenceMasterCSV');
+    
+    if (!selectedCsvFile) {
+        alert('No CSV file selected. Please go back and choose a level.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log('Loading CSV file:', selectedCsvFile);
+    
+    fetch(selectedCsvFile)
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`Could not load ${selectedCsvFile}`);
+            }
+            return r.text();
+        })
+        .then(csv => {
+            console.log('CSV loaded, length:', csv.length);
+            console.log('First 200 chars:', csv.substring(0, 200));
+            
+            const lines = csv.split('\n');
+            console.log('Total lines:', lines.length);
+            
+            // Check the header to understand column structure
+            const headerLine = lines[0];
+            console.log('Header:', headerLine);
+            
+            // Determine delimiter
+            const delimiter = headerLine.includes('\t') ? '\t' : ',';
+            console.log('Using delimiter:', delimiter);
+            
+            // Start from line 1 (skip header)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line === '') {
+                    console.log(`Line ${i} is empty, skipping`);
+                    continue;
+                }
+                
+                let parts;
+                if (delimiter === '\t') {
+                    parts = line.split('\t');
+                } else {
+                    parts = splitCSV(line);
+                }
+                
+                console.log(`Line ${i} parts:`, parts.length);
+                
+                // Based on your CSV structure, columns are:
+                // parts[0] = Question #
+                // parts[1] = Original Sentence (EN)
+                // parts[2] = Change To
+                // parts[3] = Answer
+                
+                if (parts.length >= 4) {
+                    const question = {
+                        original: parts[1] ? parts[1].trim() : '',
+                        changeTo: parts[2] ? parts[2].trim() : '',
+                        answer: parts[3] ? parts[3].trim() : ''
+                    };
+                    
+                    // Only add if all fields have content
+                    if (question.original && question.changeTo && question.answer) {
+                        questions.push(question);
+                        console.log(`Added question ${questions.length}:`, question.original.substring(0, 30));
+                    } else {
+                        console.log('Skipping line - missing fields:', question);
+                    }
+                } else {
+                    console.log(`Line ${i} has insufficient parts:`, parts.length);
+                }
+            }
+            
+            console.log('Total questions loaded:', questions.length);
+            
+            if (questions.length === 0) {
+                alert('No valid questions found in the CSV file. Please check the file format.');
+                return;
+            }
+            
+            // Shuffle questions
+            questions.sort(() => Math.random() - 0.5);
+            
+            showQuestion();
+            
+            // Set timer for 10 minutes (600000 ms)
+            timerTimeout = setTimeout(function() {
+                showTimesUpModal();
+            }, 600000);
+            
+            // Listen for animation end on timer bar
+            $('.timer-bar').on('animationend', function() {
+                showTimesUpModal();
+            });
+        })
+        .catch(error => {
+            alert('Error loading CSV: ' + error.message);
+            console.error('Fetch error:', error);
+        });
+});
+
+function showQuestion() {
+    if (index >= questions.length) {
+        // End of questions - go to index page
+        clearTimeout(timerTimeout);
+        location.href = 'index.html';
+        return;
+    }
+
+    const q = questions[index];
+    console.log(`Showing question ${index + 1}:`, q);
+    
+    $('#questionNumber').text(`Question ${index + 1} of ${questions.length}`);
+    $('#originalSentence').text(q.original);
+    $('#instruction').text(`→ Change to: ${q.changeTo}`);
+    $('#answerText').text(q.answer);
+
+    // Hide answer section and reset buttons
+    $('#answerSection').hide();
+    $('#showAnswerBtn').removeClass('hidden');
+    $('#nextBtn').addClass('hidden');
+    // End Game button is always visible
+    
+    // Scroll to top
+    $('.card').scrollTop(0);
+}
+
+$('#showAnswerBtn').on('click', function() {
+    $('#answerSection').slideDown(300, function() {
+        // After answer is shown, scroll to make sure buttons are visible
+        $('.card').animate({
+            scrollTop: $('.card')[0].scrollHeight
+        }, 500);
+    });
+    $(this).addClass('hidden');
+    $('#nextBtn').removeClass('hidden');
+    // End Game button remains visible
+});
+
+$('#nextBtn').on('click', function() {
+    index++;
+    showQuestion();
+});
+
+$('#endBtn').on('click', function() {
+    showWinner();
+});
+
+function showWinner() {
+    $('.timer-bar').css('animation-play-state', 'paused');
+    clearTimeout(timerTimeout);
+    $('#winnerOverlay').css('display', 'flex').hide().fadeIn(400);
+    Fireworks.start();
+}
+
+// Back to Game = cancel (if End Game was pressed by mistake)
+$('#backToGameBtn').on('click', function() {
+    Fireworks.stop();
+    $('#winnerOverlay').fadeOut(300);
+    $('.timer-bar').css('animation-play-state', 'running');
+});
+
+function showTimesUpModal() {
+    // Clear the timeout to prevent multiple triggers
+    clearTimeout(timerTimeout);
+    
+    // Show the modal
+    $('#timesUpModal').fadeIn(300).css('display', 'flex');
+    
+    // Pause the timer animation
+    $('.timer-bar').css('animation-play-state', 'paused');
+}
+
+// Modal OK button click
+$('#modalOkBtn').on('click', function() {
+    // Go to index page
+    location.href = 'index.html';
+});
+
+// Clear timeout when leaving page
+window.addEventListener('beforeunload', function() {
+    clearTimeout(timerTimeout);
+});
+</script>
+
+</body>
+</html>
