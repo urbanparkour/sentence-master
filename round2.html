@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3PM · Round 2: Survivor Battle</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Bubblegum Sans', cursive;
+    background: linear-gradient(135deg, #FF6B6B, #EE5A6F);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px 20px 0;
+    overflow: auto;
+}
+
+/* ===== TIMER (TOP TO BOTTOM) ===== */
+.timer-container {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 18px;
+    height: 100vh;
+    background: rgba(0,0,0,0.15);
+    z-index: 100;
+}
+
+.timer-bar {
+    width: 100%;
+    height: 0%;
+    background: #00FF00;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: countdown 600s linear forwards;
+}
+
+@keyframes countdown {
+    from { height: 0%; }
+    to { height: 100%; }
+}
+
+/* ===== MAIN CARD ===== */
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 1000px;
+    width: calc(100% - 40px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    text-align: center;
+    margin: 20px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.card::-webkit-scrollbar {
+    width: 10px;
+}
+
+.card::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: #FF6B6B;
+    border-radius: 10px;
+}
+
+.round-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px;
+    color: #FF6B6B;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.stage-subtitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.question-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: #4ECDC4;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.question-box {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 25px;
+    flex-shrink: 0;
+}
+
+.original-sentence {
+    font-size: 26px;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.change-instruction {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: #FFD700;
+    word-wrap: break-word;
+}
+
+/* ===== ANSWER SECTION ===== */
+.answer-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.answer-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.answer-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.answer-section::-webkit-scrollbar-thumb {
+    background: #FF6B6B;
+    border-radius: 10px;
+}
+
+.answer-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: #FF6B6B;
+    margin-bottom: 15px;
+}
+
+.answer-text {
+    font-size: 24px;
+    color: #2c3e50;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    border: 3px solid #FF6B6B;
+    word-wrap: break-word;
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding: 15px 0 5px 0;
+    background: white;
+    border-top: 2px solid #f0f0f0;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.control-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    color: white;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn-show {
+    background: linear-gradient(145deg, #4ECDC4, #44A08D);
+}
+
+.btn-next {
+    background: linear-gradient(145deg, #FFD700, #FFA500);
+}
+
+.btn-end {
+    background: linear-gradient(145deg, #FF6B6B, #EE5A6F);
+}
+
+.btn-home {
+    background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+}
+
+.hidden { display: none !important; }
+
+/* ===== MODAL POPUP ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 30px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    animation: modalPop 0.5s ease-out;
+}
+
+@keyframes modalPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.modal-content h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 48px;
+    color: #FF6B6B;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.modal-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    padding: 15px 50px;
+    background: linear-gradient(145deg, #FF6B6B, #EE5A6F);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        position: static;
+    }
+    
+    .control-btn {
+        width: 100%;
+        min-width: auto;
+        font-size: 20px;
+        padding: 15px 25px;
+    }
+    
+    .modal-content {
+        padding: 30px;
+    }
+    
+    .modal-content h2 {
+        font-size: 36px;
+    }
+    
+    .modal-icon {
+        font-size: 60px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TIMER -->
+<div class="timer-container">
+    <div class="timer-bar"></div>
+</div>
+
+<!-- GAME VIEW -->
+<div class="card" id="gameView">
+    <div class="round-title">⚔️ Survivor Battle</div>
+    <div class="stage-subtitle">Last one standing wins!</div>
+    
+    <div class="question-number" id="questionNumber">Loading questions...</div>
+
+    <div class="question-box">
+        <div class="original-sentence" id="originalSentence"></div>
+        <div class="change-instruction" id="instruction"></div>
+    </div>
+
+    <div class="answer-section" id="answerSection">
+        <div class="answer-label">✓ Correct Answer</div>
+        <div class="answer-text" id="answerText"></div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn btn-show" id="showAnswerBtn">Show Answer</button>
+        <button class="control-btn btn-next hidden" id="nextBtn">Next</button>
+        <button class="control-btn btn-end" id="endBtn">End Game</button>
+        <button class="control-btn btn-home" onclick="location.href='index.html'">Home</button>
+    </div>
+</div>
+
+<!-- TIME'S UP MODAL -->
+<div class="modal-overlay" id="timesUpModal">
+    <div class="modal-content">
+        <div class="modal-icon">⏰</div>
+        <h2>TIME'S UP!</h2>
+        <p>The round has ended</p>
+        <button class="modal-btn" id="modalOkBtn">OK</button>
+    </div>
+</div>
+
+<script>
+// Sentence Master Challenge – Week of October 26–28, 2026
+// 36 hard-coded questions per class; no external CSV files are required.
+const SM_DATA_BY_CLASS = {
+    "3pm": "question #\toriginal sentence\tchange to\tanswer\n1\tMy brother carries his lunch to school.\tYesterday\tMy brother carried his lunch to school yesterday.\n2\tThe girls are painting a picture.\tQuestion\tAre the girls painting a picture?\n3\tThere is a leaf on the ground.\tPlural\tThere are leaves on the ground.\n4\tHannah visits the library after school.\tNegative\tHannah doesn’t visit the library after school.\n5\tI have a new pair of gloves.\tHe\tHe has a new pair of gloves.\n6\tThe children usually walk home together.\tNow\tThe children are walking home together now.\n7\tEthan can carry both bags.\tNegative\tEthan can’t carry both bags.\n8\tOlivia practices the piano every evening.\tQuestion\tDoes Olivia practice the piano every evening?\n9\tThe playground is empty today.\tYesterday\tThe playground was empty yesterday.\n10\tWe found shells yesterday.\tEvery summer\tWe find shells every summer.\n11\tThe rain was heavy. We stayed inside.\tbecause\tWe stayed inside because the rain was heavy.\n12\tMason has a red skateboard.\tThey\tThey have red skateboards.\n13\tMy sister brings her lunch to work.\tYesterday\tMy sister brought her lunch to work yesterday.\n14\tThe boys are washing their bicycles.\tQuestion\tAre the boys washing their bicycles?\n15\tThere is a mouse in the kitchen.\tPlural\tThere are mice in the kitchen.\n16\tKevin plays chess after dinner.\tNegative\tKevin doesn’t play chess after dinner.\n17\tI have a new pair of boots.\tShe\tShe has a new pair of boots.\n18\tThe students usually sit near the window.\tNow\tThe students are sitting near the window now.\n19\tEmma can carry the suitcase.\tNegative\tEmma can’t carry the suitcase.\n20\tDaniel visits his uncle every month.\tQuestion\tDoes Daniel visit his uncle every month?\n21\tThe beach is quiet today.\tYesterday\tThe beach was quiet yesterday.\n22\tWe caught fish yesterday.\tEvery summer\tWe catch fish every summer.\n23\tThe road was wet. We drove slowly.\tbecause\tWe drove slowly because the road was wet.\n24\tSophie has a purple umbrella.\tThey\tThey have purple umbrellas.\n25\tMy father drives to work every morning.\tYesterday\tMy father drove to work yesterday.\n26\tThe children are carrying umbrellas.\tQuestion\tAre the children carrying umbrellas?\n27\tThere is a tooth in the box.\tPlural\tThere are teeth in the box.\n28\tEmma practices English after dinner.\tNegative\tEmma doesn’t practice English after dinner.\n29\tI have a new winter coat.\tHe\tHe has a new winter coat.\n30\tThe boys usually play near the school.\tNow\tThe boys are playing near the school now.\n31\tOlivia can answer all the questions.\tNegative\tOlivia can’t answer all the questions.\n32\tJason helps his mother every evening.\tQuestion\tDoes Jason help his mother every evening?\n33\tThe station is crowded today.\tYesterday\tThe station was crowded yesterday.\n34\tWe saw deer yesterday.\tEvery winter\tWe see deer every winter.\n35\tThe weather was warm. We ate outside.\tbecause\tWe ate outside because the weather was warm.\n36\tChloe has a new pair of headphones.\tThey\tThey have new pairs of headphones.",
+    "4pm": "question #\toriginal sentence\tchange to\tanswer\n1\tNatalie keeps her notes in a folder.\tYesterday\tNatalie kept her notes in a folder yesterday.\n2\tThey spent the weekend at home.\tNext weekend\tThey will spend the weekend at home next weekend.\n3\tJason enjoys solving difficult problems.\tNegative\tJason doesn’t enjoy solving difficult problems.\n4\tIsabella is checking the train schedule.\tQuestion\tIs Isabella checking the train schedule?\n5\tThe restaurant was expensive. The food was excellent.\tbut\tThe restaurant was expensive, but the food was excellent.\n6\tNoah turned off the lights. He was leaving the house.\tbecause\tNoah turned off the lights because he was leaving the house.\n7\tThis street is busy. That street is quiet.\tthan\tThis street is busier than that street.\n8\tEmily is going to apply for the course.\tQuestion\tIs Emily going to apply for the course?\n9\tI usually bring lunch from home.\tYesterday\tI brought lunch from home yesterday.\n10\tThis hotel is comfortable. That hotel is basic.\tthan\tThis hotel is more comfortable than that hotel.\n11\tYou should ask for help.\tNegative\tYou shouldn’t ask for help.\n12\tLucas checked the map. Then he started driving.\tafter\tLucas started driving after he checked the map.\n13\tEthan keeps his phone in his backpack.\tYesterday\tEthan kept his phone in his backpack yesterday.\n14\tThey stayed at a hotel last weekend.\tNext weekend\tThey will stay at a hotel next weekend.\n15\tMia enjoys learning about other countries.\tNegative\tMia doesn’t enjoy learning about other countries.\n16\tOliver is looking at the menu.\tQuestion\tIs Oliver looking at the menu?\n17\tThe journey was long. The scenery was beautiful.\tbut\tThe journey was long, but the scenery was beautiful.\n18\tGrace closed the window. It was getting cold.\tbecause\tGrace closed the window because it was getting cold.\n19\tThis building is old. That building is new.\tthan\tThis building is older than that building.\n20\tLucas is going to buy a new laptop.\tQuestion\tIs Lucas going to buy a new laptop?\n21\tI usually take notes during class.\tYesterday\tI took notes during class yesterday.\n22\tThis exercise is useful. That exercise is simple.\tthan\tThis exercise is more useful than that exercise.\n23\tYou should wait outside.\tNegative\tYou shouldn’t wait outside.\n24\tHannah finished her work. Then she went for a walk.\tafter\tHannah went for a walk after she finished her work.\n25\tSophie writes a to-do list every morning.\tYesterday\tSophie wrote a to-do list yesterday.\n26\tThey ate at a new restaurant last Friday.\tNext Friday\tThey will eat at a new restaurant next Friday.\n27\tDaniel enjoys spending time by himself.\tNegative\tDaniel doesn’t enjoy spending time by himself.\n28\tAmelia is talking to the hotel manager.\tQuestion\tIs Amelia talking to the hotel manager?\n29\tThe room was noisy. I slept well.\tbut\tThe room was noisy, but I slept well.\n30\tNoah arrived early. He wanted a good seat.\tbecause\tNoah arrived early because he wanted a good seat.\n31\tThis chair is soft. That chair is hard.\tthan\tThis chair is softer than that chair.\n32\tGrace is going to meet her new teacher.\tQuestion\tIs Grace going to meet her new teacher?\n33\tI usually leave home at seven.\tYesterday\tI left home at seven yesterday.\n34\tThis route is convenient. That route is difficult.\tthan\tThis route is more convenient than that route.\n35\tYou should bring a notebook.\tQuestion\tShould you bring a notebook?\n36\tEthan finished dinner. Then he washed the dishes.\tafter\tEthan washed the dishes after he finished dinner.",
+    "5pm": "question #\toriginal sentence\tchange to\tanswer\n1\tI like cherries.\tShe\tShe likes cherries.\n2\tBen has a brown pencil case.\tThey\tThey have brown pencil cases.\n3\tThe box is beside the door.\tPlural\tThe boxes are beside the door.\n4\tWe visit our cousin every Saturday.\tYesterday\tWe visited our cousin yesterday.\n5\tHe is carrying his school bag.\tQuestion\tIs he carrying his school bag?\n6\tEmma likes cereal.\tNegative\tEmma doesn’t like cereal.\n7\tThere are three towels in the bathroom.\tSingular\tThere is a towel in the bathroom.\n8\tThey ride their bikes after school.\tNow\tThey are riding their bikes now.\n9\tLucy can open the jar.\tNegative\tLucy can’t open the jar.\n10\tRyan drinks water after lunch.\tQuestion\tDoes Ryan drink water after lunch?\n11\tI was busy yesterday.\tToday\tI am busy today.\n12\tWe have sandwiches. We have juice.\tand\tWe have sandwiches and juice.\n13\tI like pineapples.\tHe\tHe likes pineapples.\n14\tAmy has a yellow lunch box.\tThey\tThey have yellow lunch boxes.\n15\tThe shoe is beside the bed.\tPlural\tThe shoes are beside the bed.\n16\tWe call our cousin every Friday.\tYesterday\tWe called our cousin yesterday.\n17\tShe is brushing her teeth.\tQuestion\tIs she brushing her teeth?\n18\tBen likes noodles.\tNegative\tBen doesn’t like noodles.\n19\tThere are four spoons on the table.\tSingular\tThere is a spoon on the table.\n20\tThey draw pictures after school.\tNow\tThey are drawing pictures now.\n21\tJack can close the window.\tNegative\tJack can’t close the window.\n22\tLucy walks to the bus stop.\tQuestion\tDoes Lucy walk to the bus stop?\n23\tI was sleepy yesterday.\tToday\tI am sleepy today.\n24\tWe have apples. We have crackers.\tand\tWe have apples and crackers.\n25\tI like blueberries.\tShe\tShe likes blueberries.\n26\tTom has a red lunch bag.\tThey\tThey have red lunch bags.\n27\tThe book is beside the lamp.\tPlural\tThe books are beside the lamp.\n28\tWe visit the playground every Sunday.\tYesterday\tWe visited the playground yesterday.\n29\tHe is washing his hands.\tQuestion\tIs he washing his hands?\n30\tAnna likes yogurt.\tNegative\tAnna doesn’t like yogurt.\n31\tThere are two bowls on the table.\tSingular\tThere is a bowl on the table.\n32\tThey kick the ball after school.\tNow\tThey are kicking the ball now.\n33\tMia can carry the bag.\tNegative\tMia can’t carry the bag.\n34\tKevin rides his bike to school.\tQuestion\tDoes Kevin ride his bike to school?\n35\tI was excited yesterday.\tToday\tI am excited today.\n36\tWe have bananas. We have milk.\tand\tWe have bananas and milk."
+};
+
+const selectedClass = localStorage.getItem('sentenceMasterClass') || '3pm';
+const activeClass = SM_DATA_BY_CLASS[selectedClass] ? selectedClass : '3pm';
+const SM_DATA = SM_DATA_BY_CLASS[activeClass];
+const selectedCsvFile = `${activeClass.toUpperCase()} weekly built-in set (36 questions)`;
+document.title = `${activeClass.toUpperCase()} · ${document.title.replace(/^3PM\s*·\s*/, '')}`;
+
+</script>
+<script>
+let questions = [];
+let index = 0;
+let timerTimeout;
+
+$(document).ready(function() {
+    
+    if (!selectedCsvFile) {
+        alert('No CSV file selected. Please go back and choose a level.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log('Loading CSV file:', selectedCsvFile);
+    
+    Promise.resolve(new Response(SM_DATA))
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`Could not load ${selectedCsvFile}`);
+            }
+            return r.text();
+        })
+        .then(csv => {
+            console.log('CSV loaded, length:', csv.length);
+            console.log('First 200 chars:', csv.substring(0, 200));
+            
+            const lines = csv.split('\n');
+            console.log('Total lines:', lines.length);
+            
+            // Check the header to understand column structure
+            const headerLine = lines[0];
+            console.log('Header:', headerLine);
+            
+            // Determine delimiter
+            const delimiter = headerLine.includes('\t') ? '\t' : ',';
+            console.log('Using delimiter:', delimiter);
+            
+            // Start from line 1 (skip header)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line === '') {
+                    console.log(`Line ${i} is empty, skipping`);
+                    continue;
+                }
+                
+                let parts;
+                if (delimiter === '\t') {
+                    parts = line.split('\t');
+                } else {
+                    parts = line.split(',');
+                }
+                
+                console.log(`Line ${i} parts:`, parts.length);
+                
+                // Based on your CSV structure, columns are:
+                // parts[0] = Question #
+                // parts[1] = Original Sentence (EN)
+                // parts[2] = Change To
+                // parts[3] = Answer
+                
+                if (parts.length >= 4) {
+                    const question = {
+                        original: parts[1] ? parts[1].trim() : '',
+                        changeTo: parts[2] ? parts[2].trim() : '',
+                        answer: parts[3] ? parts[3].trim() : ''
+                    };
+                    
+                    // Only add if all fields have content
+                    if (question.original && question.changeTo && question.answer) {
+                        questions.push(question);
+                        console.log(`Added question ${questions.length}:`, question.original.substring(0, 30));
+                    } else {
+                        console.log('Skipping line - missing fields:', question);
+                    }
+                } else {
+                    console.log(`Line ${i} has insufficient parts:`, parts.length);
+                }
+            }
+            
+            console.log('Total questions loaded:', questions.length);
+            
+            if (questions.length === 0) {
+                alert('No valid questions found in the CSV file. Please check the file format.');
+                return;
+            }
+            
+            // Shuffle questions
+            questions.sort(() => Math.random() - 0.5);
+            
+            showQuestion();
+            
+            // Set timer for 10 minutes (600000 ms)
+            timerTimeout = setTimeout(function() {
+                showTimesUpModal();
+            }, 600000);
+            
+            // Listen for animation end on timer bar
+            $('.timer-bar').on('animationend', function() {
+                showTimesUpModal();
+            });
+        })
+        .catch(error => {
+            alert('Error loading CSV: ' + error.message);
+            console.error('Fetch error:', error);
+        });
+});
+
+function showWinnerScreen() {
+    clearTimeout(timerTimeout);
+    $('.timer-bar').css('animation-play-state', 'paused');
+
+    document.body.innerHTML = `
+        <div id="winnerScreen" style="
+            position:fixed; inset:0; background:#ffffff;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            overflow:hidden; z-index:9999; padding:24px; box-sizing:border-box;">
+            <canvas id="fireworksCanvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1;"></canvas>
+            <img src="Winner.png" alt="Winner" style="
+                position:relative; z-index:2; max-width:min(82vw,900px); max-height:72vh;
+                width:auto; height:auto; object-fit:contain; display:block;">
+            <button id="winnerHomeBtn" style="
+                position:relative; z-index:3; margin-top:22px; padding:14px 34px;
+                border:0; border-radius:14px; background:#95a5a6; color:white;
+                font-family:'Fredoka One',cursive; font-size:20px; cursor:pointer;
+                box-shadow:0 5px 15px rgba(0,0,0,.18); text-transform:uppercase;">
+                Home
+            </button>
+        </div>`;
+
+    document.getElementById('winnerHomeBtn').addEventListener('click', function () {
+        location.href = 'index.html';
+    });
+
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    const particles = [];
+    const palette = ['#ff4d4d','#ff9f1c','#ffd60a','#2ec4b6','#4d96ff','#8a5cff','#ff5db1'];
+
+    function resizeCanvas() {
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function burst(x, y) {
+        const count = 55;
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i / count) + Math.random() * 0.15;
+            const speed = 2.2 + Math.random() * 4.2;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1,
+                decay: 0.012 + Math.random() * 0.012,
+                size: 2 + Math.random() * 2.8,
+                color
+            });
+        }
+    }
+
+    let nextBurst = 0;
+    let start = performance.now();
+    function animate(t) {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (t > nextBurst) {
+            const marginX = window.innerWidth * 0.12;
+            const x = marginX + Math.random() * (window.innerWidth - marginX * 2);
+            const y = window.innerHeight * (0.12 + Math.random() * 0.45);
+            burst(x, y);
+            nextBurst = t + 300 + Math.random() * 350;
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.035;
+            p.vx *= 0.992;
+            p.vy *= 0.992;
+            p.life -= p.decay;
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Keep the celebration running for 12 seconds, then let remaining sparks fade.
+        if (t - start < 12000 || particles.length > 0) {
+            requestAnimationFrame(animate);
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+function showQuestion() {
+    if (index >= questions.length) {
+        // End of questions - show winner celebration
+        clearTimeout(timerTimeout);
+        showWinnerScreen();
+        return;
+    }
+
+    const q = questions[index];
+    console.log(`Showing question ${index + 1}:`, q);
+    
+    $('#questionNumber').text(`Question ${index + 1} of ${questions.length}`);
+    $('#originalSentence').text(q.original);
+    $('#instruction').text(`→ Change to: ${q.changeTo}`);
+    $('#answerText').text(q.answer);
+
+    // Hide answer section and reset buttons
+    $('#answerSection').hide();
+    $('#showAnswerBtn').removeClass('hidden');
+    $('#nextBtn').addClass('hidden');
+    // End Game button is always visible
+    
+    // Scroll to top
+    $('.card').scrollTop(0);
+}
+
+$('#showAnswerBtn').on('click', function() {
+    $('#answerSection').slideDown(300, function() {
+        // After answer is shown, scroll to make sure buttons are visible
+        $('.card').animate({
+            scrollTop: $('.card')[0].scrollHeight
+        }, 500);
+    });
+    $(this).addClass('hidden');
+    $('#nextBtn').removeClass('hidden');
+    // End Game button remains visible
+});
+
+$('#nextBtn').on('click', function() {
+    index++;
+    showQuestion();
+});
+
+$('#endBtn').on('click', function() {
+    // Show confirmation dialog
+    if (confirm('Are you sure you want to end the game?')) {
+        clearTimeout(timerTimeout);
+        // Show the winner celebration
+        showWinnerScreen();
+    }
+});
+
+function showTimesUpModal() {
+    // Clear the timeout to prevent multiple triggers
+    clearTimeout(timerTimeout);
+    
+    // Show the modal
+    $('#timesUpModal').fadeIn(300).css('display', 'flex');
+    
+    // Pause the timer animation
+    $('.timer-bar').css('animation-play-state', 'paused');
+}
+
+// Modal OK button click
+$('#modalOkBtn').on('click', function() {
+    // Show the winner celebration
+    showWinnerScreen();
+});
+
+// Clear timeout when leaving page
+window.addEventListener('beforeunload', function() {
+    clearTimeout(timerTimeout);
+});
+</script>
+
+</body>
+</html>
